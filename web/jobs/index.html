@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>JobHunt</title>
+<!-- Phone app: Safari > Share > Add to Home Screen opens this full screen like an app. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JobHunt">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f5f4ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121211" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f4ef; --surface: #fdfcf9; --surface-2: #eeede6; --line: #e1dfd6; --line-2: #d2d0c5;
+  --text: #121211; --text-2: #4e4d47; --muted: #6f6e66;
+  --lime: #c6f24e; --lime-ink: #121211;
+  --accent: #3b6a00; --accent-ink: #121211; --accent-soft: #e9f5cc;
+  --band: #141413; --band-2: #23231f; --band-text: #f5f4ef; --band-muted: #a9a89e;
+  --good: #0f7b3e; --good-soft: #def2e4; --warn: #8f5400; --warn-soft: #fbedd3;
+  --bad: #b42323; --bad-soft: #fbe3e1; --info-soft: #eae8fa; --info: #4a3aa7;
+  --shadow: 0 1px 2px rgba(20,20,10,.06), 0 2px 6px -3px rgba(20,20,10,.08);
+  --radius: 14px;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121211; --surface: #1a1a18; --surface-2: #24241f; --line: #2c2c27; --line-2: #3a3a33;
+    --text: #f5f4ef; --text-2: #c4c3b8; --muted: #97968c;
+    --accent: #c6f24e; --accent-soft: #263212;
+    --band: #1b1b18; --band-2: #2a2a24; --band-text: #f5f4ef; --band-muted: #a3a298;
+    --good: #5cc98a; --good-soft: #15291d; --warn: #f0b44c; --warn-soft: #2e2412;
+    --bad: #f07a7a; --bad-soft: #321818; --info-soft: #23203a; --info: #b1a8f2;
+    --shadow: 0 1px 0 rgba(255,255,255,.03) inset;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 15px/1.5 Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased; font-feature-settings: "tnum" 0; -webkit-tap-highlight-color: transparent; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--accent); text-underline-offset: 3px; }
+::selection { background: var(--lime); color: var(--lime-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input, textarea { caret-color: var(--accent); }
+* { scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+.num { font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+
+/* top bar */
+header.top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 19px; letter-spacing: -.035em; }
+.brand svg { width: 28px; height: 28px; flex: none; }
+.sub { color: var(--text-2); font-size: 13px; }
+.spacer { flex: 1; }
+.chips { display: flex; gap: 6px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); font-size: 12px; font-weight: 500; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .55; }
+#aicost::before { display: none; }
+.pill.on { background: var(--good-soft); color: var(--good); } .pill.off { background: var(--warn-soft); color: var(--warn); }
+.pill.on::before { opacity: 1; box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 25%, transparent); }
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 8px 13px; border-radius: 10px; cursor: pointer; white-space: nowrap; font-weight: 500;
+  transition: border-color .15s, background .15s, transform .15s var(--ease); }
+.btn:hover { border-color: var(--line-2); background: var(--surface-2); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); font-weight: 650; }
+.btn.primary:hover { background: color-mix(in srgb, var(--lime) 88%, #000); }
+.btn.good { background: var(--good); border-color: var(--good); color: #fff; font-weight: 650; }
+.btn.ghost { background: transparent; border-color: transparent; }
+.btn:disabled { opacity: .45; cursor: default; transform: none; }
+.btn svg { width: 16px; height: 16px; vertical-align: -3px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+
+/* hero: the October deadline */
+.hero { background: var(--band); color: var(--band-text); border-radius: 22px; padding: 22px 24px 18px; margin-bottom: 12px; position: relative; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 18px 32px; align-items: end; }
+@media (prefers-color-scheme: dark) { .hero { border: 1px solid var(--line); } }
+.hero h1 { margin: 0; font-size: clamp(30px, 4.4vw, 50px); line-height: 1; letter-spacing: -.045em; font-weight: 750; text-wrap: balance; }
+.hero h1 .big { color: var(--lime); font-variant-numeric: tabular-nums; }
+.hero p { margin: 10px 0 0; color: var(--band-muted); font-size: 15px; max-width: 46ch; }
+.hero p b { color: var(--band-text); font-weight: 600; }
+.hero .goto { color: var(--lime); text-decoration: none; font-weight: 600; white-space: nowrap; }
+.runway { position: relative; height: 112px; }
+.runway svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.runway .bar { transform-box: fill-box; transform-origin: bottom; animation: grow .9s var(--ease) both; }
+@keyframes grow { from { transform: scaleY(.04); } }
+@media (prefers-reduced-motion: reduce) { .runway .bar { animation: none; } }
+.tip { position: absolute; pointer-events: none; background: var(--lime); color: var(--lime-ink); padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; transform: translate(-50%, -125%); display: none; }
+
+/* flow: the pipeline in one line */
+.flow { display: flex; align-items: stretch; margin-bottom: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; scrollbar-width: none; }
+.flow::-webkit-scrollbar { display: none; }
+.step { flex: 1 0 auto; min-width: 104px; padding: 11px 16px 12px; border: 0; background: none; text-align: left; cursor: pointer; position: relative; border-radius: 0; transition: background .15s; }
+.step + .step { border-left: 1px solid var(--line); }
+.step:hover { background: var(--surface-2); }
+.step .lbl { color: var(--text-2); font-size: 12.5px; font-weight: 500; display: block; }
+.step .val { font-size: 26px; font-weight: 700; letter-spacing: -.03em; line-height: 1.15; font-variant-numeric: tabular-nums; display: block; }
+.step .meta { color: var(--muted); font-size: 11.5px; display: block; white-space: nowrap; }
+.step.you .val { color: var(--warn); }
+.step.hl .val { color: var(--accent); }
+.step.dim .val { color: var(--muted); }
+.reviewline { display: flex; align-items: center; gap: 12px; color: var(--text-2); font-size: 13px; margin: 0 4px 18px; }
+.reviewline .bar { flex: 0 0 120px; height: 5px; background: var(--surface-2); border-radius: 9px; overflow: hidden; }
+.reviewline .bar span { display: block; height: 100%; background: var(--accent); border-radius: 9px; }
+
+/* tabs + list */
+.stick { position: sticky; top: 0; z-index: 5; background: var(--bg); padding-top: env(safe-area-inset-top); margin: 0 -4px; padding-left: 4px; padding-right: 4px; }
+.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { border: 0; background: transparent; padding: 11px 12px 10px; cursor: pointer; color: var(--text-2); white-space: nowrap; font-weight: 500; position: relative; }
+.tab:hover { color: var(--text); }
+.tab.on { color: var(--text); font-weight: 650; }
+.tab.on::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--text); }
+.tab .n { margin-left: 6px; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; background: var(--surface-2); padding: 1px 6px; border-radius: 99px; font-weight: 500; }
+.tab.on .n { background: var(--lime); color: var(--lime-ink); }
+.filters { display: flex; gap: 8px; padding: 10px 0; flex-wrap: wrap; }
+.filters input, .filters select { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 11px; }
+.filters input { flex: 1; min-width: 180px; }
+.list { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.list:empty { display: none; }
+.job { padding: 13px 16px; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 14px; align-items: center; cursor: pointer; border: 0; border-radius: 0; box-shadow: none; background: none; transition: background .12s; }
+.job + .job { border-top: 1px solid var(--line); }
+.job:hover { background: var(--surface-2); }
+.score { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-weight: 700; font-size: 15px; background: var(--surface-2); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.score.high { background: var(--lime); color: var(--lime-ink); }
+.job .t { font-weight: 600; font-size: 15.5px; letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; }
+.job .m { color: var(--text-2); font-size: 13px; display: flex; gap: 4px 12px; flex-wrap: wrap; margin-top: 3px; }
+.job .right { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+.st { font-size: 12px; font-weight: 550; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
+.st.review, .st.revamping { background: var(--accent-soft); color: var(--accent); }
+.st.needs_info, .st.low_pay { background: var(--warn-soft); color: var(--warn); }
+.st.ready, .st.sending, .st.emailing { background: var(--info-soft); color: var(--info); }
+.st.applied { background: var(--surface-2); color: var(--text); }
+.st.interview, .st.offer, .st.won { background: var(--good-soft); color: var(--good); }
+.st.rejected, .st.lost, .st.skipped { background: var(--bad-soft); color: var(--bad); }
+.shot { width: 100%; border: 1px solid var(--line); border-radius: 10px; margin-top: 8px; }
+.src { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 500; }
+a.src { color: var(--accent); text-decoration: none; }
+.rowacts { display: flex; gap: 12px; align-items: center; }
+.linkbtn { border: 0; background: none; padding: 0; color: var(--bad); font-size: 12px; cursor: pointer; font-weight: 500; }
+.links a { display: block; overflow-wrap: anywhere; margin: 3px 0; }
+.empty { padding: 44px 20px; text-align: center; color: var(--text-2); }
+.list > .empty { border: 0; box-shadow: none; border-radius: 0; }
+.more { margin: 12px auto; display: block; }
+.panel { padding: 14px 16px; }
+.panel h2 { font-size: 13px; margin: 0 0 8px; color: var(--text-2); font-weight: 600; }
+
+/* drawer */
+.scrim { position: fixed; inset: 0; background: rgba(10,10,8,.45); display: none; z-index: 10; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(760px, 100%); background: var(--bg); border-left: 1px solid var(--line); z-index: 11; transform: translateX(100%); transition: transform .3s var(--ease); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top); }
+.drawer.open { transform: none; }
+.scrim.open { display: block; }
+.dh { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 10px; align-items: flex-start; background: var(--surface); }
+.dh h2 { margin: 0; font-size: 18px; letter-spacing: -.02em; }
+.db { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.sec { padding: 14px 16px; }
+.sec h4 { margin: 0 0 10px; font-size: 13px; font-weight: 650; color: var(--text); letter-spacing: -.01em; }
+.kv { display: grid; grid-template-columns: 130px 1fr; gap: 5px 10px; font-size: 13px; }
+.kv dt { color: var(--text-2); }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+textarea, .field { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 11px; }
+textarea:focus, .field:focus, .filters input:focus, .filters select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+textarea { resize: vertical; min-height: 90px; line-height: 1.55; }
+textarea.letter { min-height: 280px; }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+.desc { white-space: pre-wrap; font-size: 13px; color: var(--text-2); max-height: 320px; overflow: auto; }
+.qs { margin: 0 0 8px; padding-left: 18px; }
+.ev { font-size: 12px; color: var(--text-2); display: grid; grid-template-columns: 130px 1fr; gap: 2px 10px; padding: 3px 0; }
+.note-warn { background: var(--warn-soft); color: var(--warn); padding: 9px 11px; border-radius: 10px; font-size: 13px; }
+.toast { position: fixed; bottom: calc(18px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); background: var(--band); color: var(--band-text); padding: 10px 16px; border-radius: 12px; z-index: 20; display: none; font-weight: 500; box-shadow: 0 10px 30px -10px rgba(0,0,0,.5); }
+label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--text-2); }
+input[type=checkbox] { accent-color: var(--accent); }
+.toast button { margin-left: 12px; border: 0; background: none; color: var(--lime); font-weight: 700; cursor: pointer; padding: 0; }
+
+/* job popup: full post on the left, letter + actions on the right */
+.jm { position: fixed; inset: 20px; margin: 0 auto; max-width: 1380px; background: var(--bg); border: 0; border-radius: 20px; z-index: 11; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 30px 80px -20px rgba(0,0,0,.45); }
+.jm.open { display: flex; animation: pop .35s var(--ease) both; }
+@keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.985); } }
+@media (prefers-reduced-motion: reduce) { .jm.open { animation: none; } }
+.jm-h { padding: 16px 18px 12px; background: var(--surface); display: flex; gap: 8px; align-items: flex-start; }
+.jm-h h2 { margin: 3px 0 5px; font-size: 21px; line-height: 1.2; letter-spacing: -.03em; font-weight: 700; text-wrap: balance; }
+.jm-nav { display: flex; gap: 8px; align-items: center; padding: 0 18px 12px; background: var(--surface); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.navbtn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 9px 16px; min-width: 120px; }
+.btn.danger { background: var(--bad-soft); border-color: transparent; color: var(--bad); font-weight: 600; }
+.btn.danger:hover { border-color: var(--bad); }
+.kbd { font: 11px ui-monospace, Menlo, monospace; padding: 0 5px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); font-weight: 400; }
+.jm-pos { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.jm-b { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+.jm-post { overflow-y: auto; padding: 20px 26px 34px; background: var(--surface); border-right: 1px solid var(--line); }
+.jm-side { overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+.post-h { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.post-h h4 { margin: 0; font-size: 13px; font-weight: 650; }
+.post-tag { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); }
+.post-tag.warn { background: var(--warn-soft); color: var(--warn); }
+.post { white-space: pre-wrap; font-size: 15px; line-height: 1.68; max-width: 72ch; overflow-wrap: anywhere; }
+.post-links { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; }
+.post-links a { display: block; overflow-wrap: anywhere; margin: 2px 0; }
+
+/* Side margins: a dot field that lights up lime near the cursor, faded out behind the dashboard itself. */
+.field { position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(50% - 640px), transparent calc(50% - 575px), transparent calc(50% + 575px), #000 calc(50% + 640px), #000 100%);
+          mask-image: linear-gradient(90deg, #000 0, #000 calc(50% - 640px), transparent calc(50% - 575px), transparent calc(50% + 575px), #000 calc(50% + 640px), #000 100%); }
+.field i { position: absolute; inset: 0; background-image: radial-gradient(circle, var(--dot) 1.1px, transparent 1.6px); background-size: 22px 22px; background-position: 11px 11px; }
+.field i:first-child { --dot: var(--line-2); opacity: .9; }
+.field i:last-child { --dot: var(--accent); opacity: 0; transition: opacity .6s var(--ease);
+  -webkit-mask-image: radial-gradient(180px circle at var(--mx, -999px) var(--my, -999px), #000, transparent 75%);
+          mask-image: radial-gradient(180px circle at var(--mx, -999px) var(--my, -999px), #000, transparent 75%); }
+.field.lit i:last-child { opacity: 1; }
+/* October day ruler in the left margin (wide screens only). */
+.ruler { position: fixed; top: 50%; transform: translateY(-50%); left: max(24px, calc((100vw - 1180px) / 4 - 34px)); z-index: 0;
+  display: none; flex-direction: column; align-items: flex-start; gap: 0; color: var(--muted); font-size: 11px; font-weight: 500; pointer-events: none;
+  background: var(--bg); padding: 10px 14px; border-radius: 12px; box-shadow: 0 0 0 10px var(--bg); }
+.ruler .tk { width: 10px; height: 2px; margin: 4px 0; border-radius: 2px; background: var(--line-2); transition: width .5s var(--ease); }
+.ruler .tk.past { background: var(--text-2); }
+.ruler .tk.wk { width: 16px; }
+.ruler .tk.today { width: 26px; height: 3px; background: var(--accent); }
+.ruler .lb { margin: 6px 0; letter-spacing: .02em; }
+.ruler .lb b { color: var(--text); font-weight: 650; }
+@media (min-width: 1380px) { .ruler { display: flex; } }
+/* hero spotlight that follows the cursor */
+.hero::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .5s var(--ease);
+  background: radial-gradient(420px circle at var(--hx, 50%) var(--hy, 50%), rgba(198, 242, 78, .09), transparent 70%); }
+.hero.lit::before { opacity: 1; }
+.hero > * { position: relative; }
+@media (prefers-reduced-motion: reduce) { .field i:last-child, .hero::before { display: none; } }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+  .jm { inset: 0; border-radius: 0; border: 0; padding-top: env(safe-area-inset-top); }
+  .jm-b { display: block; overflow-y: auto; }
+  .jm-post, .jm-side { overflow: visible; border-right: 0; }
+  .jm-post { border-bottom: 1px solid var(--line); padding: 16px; }
+  .jm-nav { padding: 0 16px 12px; }
+  .navbtn { flex: 1; min-width: 0; padding: 10px 8px; }
+  .jm-pos, .kbd, .navbtn .long { display: none; }
+}
+@media (max-width: 600px) {
+  header.top { flex-wrap: wrap; row-gap: 8px; }
+  .chips { order: 5; width: 100%; overflow-x: auto; scrollbar-width: none; }
+  #updated, .btn .long { display: none; }
+  .hero { border-radius: 20px; padding: 18px 18px 14px; gap: 14px; }
+  .hero h1 { font-size: 34px; }
+  .hero p { font-size: 14px; }
+  .runway { height: 84px; }
+  .step { min-width: 92px; padding: 10px 13px; }
+  .step .val { font-size: 22px; }
+  .reviewline { margin-bottom: 12px; font-size: 12.5px; }
+  .reviewline .bar { flex-basis: 70px; }
+  .stick { margin: 0 -16px; padding-left: 12px; padding-right: 12px; }
+  .filters input { flex-basis: 100%; }
+  .filters select { flex: 1; min-width: 0; }
+  .reviewline { align-items: flex-start; }
+  .reviewline .bar { margin-top: 7px; }
+  .list { margin: 0 -4px; }
+  .job { grid-template-columns: 40px minmax(0, 1fr); gap: 4px 12px; padding: 13px 14px; }
+  .job .right { grid-column: 2; flex-direction: row; align-items: center; flex-wrap: wrap; }
+  .score { width: 40px; height: 40px; font-size: 14px; grid-row: span 2; align-self: start; }
+  .kv { grid-template-columns: 100px 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="field" id="field" aria-hidden="true"><i></i><i></i></div>
+<div class="ruler" id="ruler" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--band)"/><path d="M9.5 13.5h13v9h-13z" fill="none" stroke="#c6f24e" stroke-width="2.4" stroke-linejoin="round"/><path d="M13 13.5v-3h6v3" fill="none" stroke="#c6f24e" stroke-width="2.4" stroke-linejoin="round"/></svg>JobHunt</div>
+    <span class="sub" id="updated"></span>
+    <span class="spacer"></span>
+    <div class="chips">
+      <span class="pill" id="botpill" title="The letter and email worker runs on my PC">PC worker</span>
+      <span class="pill" id="aicost" title="Claude spend for JobHunt only">AI cost</span>
+    </div>
+    <button class="btn primary" id="btnAdd" aria-label="Paste a job, get a cover letter"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg> Paste<span class="long"> a job</span></button>
+    <button class="btn" id="btnSettings">Settings</button>
+  </header>
+
+  <section class="hero" aria-label="Deadline">
+    <div>
+      <h1 id="countdown"></h1>
+      <p id="todayline"></p>
+    </div>
+    <div class="runway" id="chart"><div class="tip" id="tip"></div></div>
+  </section>
+
+  <section class="flow" id="kpis" aria-label="Pipeline"></section>
+  <div class="reviewline" id="review-progress"></div>
+
+  <div class="stick">
+    <nav class="tabs" id="tabs"></nav>
+    <div class="filters">
+      <input id="q" type="search" placeholder="Search title, company, description">
+      <select id="source"><option value="">All sources</option></select>
+      <select id="pay"><option value="">Any pay</option><option value="posted">Pay posted</option><option value="tbd">Pay TBD / not posted</option></select>
+    </div>
+  </div>
+  <section class="list" id="list"></section>
+  <button class="btn more" id="more" hidden>Load more</button>
+  <div id="replies"></div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dh"><div style="flex:1;min-width:0"><div class="src" id="dSrc"></div><h2 id="dTitle"></h2><div class="sub" id="dMeta"></div></div>
+    <button class="btn ghost" id="dStar" title="Star">☆</button><button class="btn ghost" id="dClose">Close</button></div>
+  <div class="db" id="dBody"></div>
+</aside>
+<div class="jm" id="jm" role="dialog" aria-modal="true" aria-labelledby="jmTitle">
+  <div class="jm-h">
+    <div style="flex:1;min-width:0"><div class="src" id="jmSrc"></div><h2 id="jmTitle"></h2><div class="sub" id="jmMeta"></div></div>
+    <button class="btn ghost" id="jmShare" title="Share this job (link + title)" aria-label="Share"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10V2M5 4.5 8 1.5l3 3M3.5 7.5v6h9v-6"/></svg></button><button class="btn ghost" id="jmStar" title="Star">☆</button><button class="btn ghost" id="jmClose" title="Close (Esc)">Close</button>
+  </div>
+  <div class="jm-nav">
+    <button class="btn navbtn" id="bPrev" title="Previous job (left arrow)"><span class="kbd">←</span> Previous</button>
+    <button class="btn navbtn" id="bNext" title="Next job (right arrow)">Next <span class="kbd">→</span></button>
+    <button class="btn navbtn danger" id="bRemoveNow" title="Remove this lead right away and open the next job">Remove<span class="long">, next job</span></button>
+    <span class="spacer"></span>
+    <span class="jm-pos" id="jmPos"></span>
+  </div>
+  <div class="jm-b"><section class="jm-post" id="jmPost"></section><section class="jm-side" id="jmSide"></section></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api/jobhunt';
+// my goal (2026-10-06): a job by the end of October 2026. Midnight Nov 1, Manila time.
+const DEADLINE = Date.parse('2026-11-01T00:00:00+08:00');
+
+// Left-margin ruler: one tick per day of October, past days filled, today in lime.
+(function drawRuler() {
+  const end = new Date(DEADLINE - 3600000), month = end.getMonth();
+  const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+  const today = Number(todayKey.slice(8)), inMonth = Number(todayKey.slice(5, 7)) - 1 === month;
+  let h = `<span class="lb">${end.toLocaleDateString('en-PH', { month: 'short' })} 1</span>`;
+  for (let d = 1; d <= end.getDate(); d++) {
+    const cls = inMonth && d === today ? 'today' : (inMonth && d < today) || (!inMonth && Date.now() > DEADLINE) ? 'past' : '';
+    h += `<span class="tk ${cls}${d % 7 === 1 ? ' wk' : ''}"></span>`;
+    if (inMonth && d === today) h += `<span class="lb"><b>Today</b></span>`;
+  }
+  document.getElementById('ruler').innerHTML = h + `<span class="lb">${end.toLocaleDateString('en-PH', { month: 'short' })} ${end.getDate()}</span>`;
+})();
+
+// Cursor: the margin dots near the pointer light up (eased so they trail slightly), and the hero band gets a soft
+// spotlight. Mouse/trackpad only; nothing runs on touch or with reduced motion.
+if (matchMedia('(pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const field = document.getElementById('field'), hero = document.querySelector('.hero'), root = document.documentElement;
+  let tx = -999, ty = -999, x = -999, y = -999, raf = 0;
+  const tick = () => {
+    x += (tx - x) * .18; y += (ty - y) * .18;
+    field.style.setProperty('--mx', x + 'px'); field.style.setProperty('--my', y + 'px');
+    raf = Math.abs(tx - x) + Math.abs(ty - y) > .5 ? requestAnimationFrame(tick) : 0;
+  };
+  addEventListener('pointermove', (e) => {
+    if (x < -900) { x = e.clientX; y = e.clientY; }
+    tx = e.clientX; ty = e.clientY; field.classList.add('lit');
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+  root.addEventListener('pointerleave', () => field.classList.remove('lit'));
+  hero.addEventListener('pointermove', (e) => {
+    const r = hero.getBoundingClientRect();
+    hero.style.setProperty('--hx', e.clientX - r.left + 'px'); hero.style.setProperty('--hy', e.clientY - r.top + 'px');
+  }, { passive: true });
+  hero.addEventListener('pointerenter', () => hero.classList.add('lit'));
+  hero.addEventListener('pointerleave', () => hero.classList.remove('lit'));
+}
+const DEMO = location.protocol === 'file:' || location.search.includes('demo');
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const TABS = [
+  ['review', 'To review'], ['low_pay', 'Lower pay $8-12'], ['needs_info', 'Needs you'], ['ready', 'Ready to apply'],
+  ['applied', 'Applied'], ['interviews', 'Interviews'], ['won', 'Won'], ['rejected', 'Rejected'], ['all', 'All'],
+];
+const STATUS_LABEL = { new: 'New', scoring: 'Scoring', rejected: 'Rejected', low_pay: 'Lower pay', needs_info: 'Needs you', review: 'To review', revamping: 'Rewriting',
+  ready: 'Ready to apply', sending: 'Email queued', emailing: 'Sending', applied: 'Applied', interview: 'Interview', offer: 'Offer',
+  won: 'Won', lost: 'Lost', ghosted: 'Ghosted', skipped: 'Skipped' };
+const SOURCE_LABEL = { onlinejobs: 'OnlineJobs.ph', linkedin: 'LinkedIn', indeed: 'Indeed', jobstreet: 'JobStreet', himalayas: 'Himalayas',
+  jobicy: 'Jobicy', remotive: 'Remotive', remoteok: 'Remote OK', wwr: 'We Work Remotely', n8nforum: 'n8n forum',
+  wellfound: 'Wellfound', kalibrr: 'Kalibrr', hubstaff: 'Hubstaff Talent', arc: 'Arc.dev', mercor: 'Mercor', manual: 'Added by you', other: 'Other' };
+let state = { tab: 'review', q: '', source: '', offset: 0, stats: null, rows: [], current: null, navIdx: 0 };
+
+async function call(action, p = {}) {
+  if (DEMO) return demo(action, p);
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, p }) });
+  if (r.status === 401) { location.href = '/pin.html'; throw new Error('Enter your PIN'); }
+  if (!r.ok) throw new Error('Server error ' + r.status);
+  const j = await r.json();
+  return j.r;
+}
+function toast(msg, undo) {
+  const t = $('#toast'); t.textContent = msg; t.style.display = 'block';
+  if (undo) { const b = document.createElement('button'); b.textContent = 'Undo'; b.onclick = () => { t.style.display = 'none'; undo(); }; t.append(b); }
+  clearTimeout(toast.h); toast.h = setTimeout(() => (t.style.display = 'none'), undo ? 6000 : 2600);
+}
+const ago = (d) => { if (!d) return ''; const s = (Date.now() - new Date(d)) / 1000; if (s < 3600) return Math.max(1, Math.round(s / 60)) + 'm ago'; if (s < 86400) return Math.round(s / 3600) + 'h ago'; return Math.round(s / 86400) + 'd ago'; };
+const fmtDate = (d) => d ? new Date(d).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+const pay = (j) => j.salary_text ? esc(j.salary_text) + (j.rate_usd_hr ? ` <span class="src">≈ $${Number(j.rate_usd_hr).toFixed(0)}/hr</span>` : '') : 'Pay not posted';
+
+// ---------- stats ----------
+async function loadStats() {
+  const s = await call('stats');
+  state.stats = s;
+  $('#updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' });
+  $('#aicost').textContent = `AI cost: $${Number(s.ai_cost_today).toFixed(2)} today · $${Number(s.ai_cost_30d).toFixed(2)} / 30d`;
+  const seen = s.settings.worker_last_seen ? new Date(s.settings.worker_last_seen) : null;
+  const online = seen && Date.now() - seen < 5 * 60000;
+  const bp = $('#botpill');
+  bp.className = 'pill ' + (online ? 'on' : 'off');
+  bp.textContent = `PC worker: ${online ? 'online' : 'offline (PC off?)'}${s.emails_waiting ? ` · ${s.emails_waiting} emails to read` : ''}`;
+  bp.title = seen ? 'Last seen ' + seen.toLocaleString('en-PH') : 'Never connected yet';
+  // Hero: days left to the goal (a job by the end of October 2026), and what is waiting on him right now.
+  const left = Math.ceil((DEADLINE - Date.now()) / 86400000);
+  $('#countdown').innerHTML = left > 1 ? `<span class="big">${left}</span> days to land it.`
+    : left === 1 ? '<span class="big">Last day</span> of October.' : 'October is done. <span class="big">Keep going.</span>';
+  const waiting = (s.review || 0) + (s.needs_info || 0);
+  $('#todayline').innerHTML = `${waiting ? `<b>${waiting} ${waiting === 1 ? 'job is' : 'jobs are'} waiting for you</b>${s.needs_info ? ` (${s.needs_info} with questions)` : ''}. ` : 'Nothing waiting on you. '}`
+    + `${s.applied_today ? `${s.applied_today} sent today, ${s.applied_week} this week.` : `${s.applied_week || 0} sent this week.`}`
+    + (waiting ? ` <a class="goto" href="#" id="gotoReview">Review now</a>` : '');
+  const gr = $('#gotoReview'); if (gr) gr.onclick = (e) => { e.preventDefault(); setTab(s.needs_info && !s.review ? 'needs_info' : 'review'); $('.stick').scrollIntoView({ behavior: 'smooth' }); };
+  // Flow: the whole pipeline in one tappable line (was 6 tiles + a Pipeline box).
+  const steps = [
+    ['all', 'Found', s.found, `+${s.found_today} in 24h`, 'dim'],
+    ['rejected', 'Filtered out', s.rejected, 'by the rules', 'dim'],
+    ['review', 'Leads', s.leads, `${s.review} to review`],
+    ['needs_info', 'Needs you', s.needs_info, 'questions', s.needs_info ? 'you' : ''],
+    ['applied', 'Applied', s.applied, `${s.applied_today} today`, 'hl'],
+    ['interviews', 'Interviews', s.interviews, s.offers ? `${s.offers} offer(s)` : 'booked or done', s.interviews ? 'hl' : ''],
+    ['won', 'Won', s.won, 'the goal'],
+  ];
+  $('#kpis').innerHTML = steps.map(([tab, l, v, m, cls]) =>
+    `<button class="step ${cls || ''}" data-tab="${tab}"><span class="lbl">${l}</span><span class="val">${v ?? 0}</span><span class="meta">${m}</span></button>`).join('');
+  document.querySelectorAll('.step').forEach((el) => el.onclick = () => setTab(el.dataset.tab));
+  const done = s.settings.approvals_done, req = Number(s.settings.approvals_required);
+  $('#review-progress').innerHTML = done < req
+    ? `<span class="bar"><span style="width:${Math.min(100, done / req * 100)}%"></span></span><span>Review period: <b>${done} of ${req}</b> letters approved. Nothing is sent without your approval.</span>`
+    : `<span>Review period done (${done} approved). Auto-send for email jobs: <b>${s.settings.auto_send === 'true' ? 'ON' : 'OFF'}</b> (Settings).</span>`;
+  const counts = { review: s.review, low_pay: s.low_pay, needs_info: s.needs_info, ready: s.ready, high: s.high, applied: s.applied, interviews: s.interviews, won: s.won, rejected: s.rejected };
+  $('#tabs').innerHTML = TABS.map(([k, l]) => `<button class="tab${state.tab === k ? ' on' : ''}" data-tab="${k}">${l}${counts[k] != null ? `<span class="n">${counts[k]}</span>` : ''}</button>`).join('');
+  document.querySelectorAll('.tab').forEach((el) => el.onclick = () => setTab(el.dataset.tab));
+  const src = $('#source');
+  if (src.options.length === 1) Object.keys(s.by_source || {}).sort().forEach((k) => src.add(new Option(`${SOURCE_LABEL[k] || k} (${s.by_source[k]})`, k)));
+  drawChart(s.applied_by_day || []);
+  $('#replies').innerHTML = (s.unmatched_replies || []).length
+    ? `<div class="card panel" style="margin-top:14px"><h2>Employer emails I couldn't match to a job</h2>${s.unmatched_replies.map((r) => `<div class="ev"><span>${fmtDate(r.at)}</span><span>${esc(r.detail)}</span></div>`).join('')}</div>` : '';
+}
+
+// Runway: one column per day of the deadline month (Oct 1-31). Past days = applications sent, today ringed in lime,
+// the days still ahead drawn as empty slots so the remaining runway is visible at a glance.
+function drawChart(days) {
+  const box = $('#chart'); const tip = $('#tip');
+  const map = Object.fromEntries(days.map((d) => [d.d, d.n]));
+  const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+  const end = new Date(DEADLINE - 3600000), first = new Date(end.getFullYear(), end.getMonth(), 1);
+  const data = [];
+  for (let d = new Date(first); d <= end; d.setDate(d.getDate() + 1)) {
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    data.push({ key, n: map[key] || 0, day: d.getDate(), future: key > todayKey, today: key === todayKey,
+      label: d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }) });
+  }
+  const W = box.clientWidth || 600, H = box.clientHeight || 112, padB = 18, padT = 4;
+  const top = Math.max(4, ...data.map((d) => d.n));
+  const bw = W / data.length, gap = Math.max(2, Math.min(5, bw * .28)), w = bw - gap;
+  const base = H - padB, y = (v) => base - (v / top) * (base - padT);
+  let g = '';
+  data.forEach((d, i) => {
+    const x = i * bw + gap / 2;
+    if (d.future) g += `<rect x="${x}" y="${base - 6}" width="${w}" height="6" rx="2" fill="none" stroke="var(--band-2)" stroke-width="1.2"/>`;
+    else {
+      const h = Math.max(3, base - y(d.n));
+      g += `<rect class="bar" style="animation-delay:${i * 18}ms" x="${x}" y="${base - h}" width="${w}" height="${h}" rx="${Math.min(3, w / 3)}" fill="${d.n ? 'var(--lime)' : 'var(--band-2)'}"/>`;
+    }
+    if (d.today) g += `<rect x="${x - 2.5}" y="${padT - 2}" width="${w + 5}" height="${base - padT + 4}" rx="5" fill="none" stroke="var(--lime)" stroke-width="1.4" stroke-dasharray="2 3"/>`;
+    const nearToday = data.some((o, k) => o.today && k !== i && Math.abs(k - i) < 4);
+    const lastLabel = i === data.length - 1, weekly = d.day % 7 === 1 && data.length - 1 - i >= 4;
+    if (d.today || ((weekly || lastLabel) && !nearToday)) g += `<text x="${x + w / 2}" y="${H - 3}" text-anchor="${lastLabel ? 'end' : i === 0 ? 'start' : 'middle'}" font-size="10.5" fill="${d.today ? 'var(--lime)' : 'var(--band-muted)'}" font-weight="${d.today ? 600 : 400}" font-family="Geist, sans-serif">${d.today ? 'Today' : d.label}</text>`;
+    g += `<rect class="hit" data-i="${i}" x="${i * bw}" y="0" width="${bw}" height="${H}" fill="transparent"/>`;
+  });
+  box.querySelector('svg')?.remove();
+  const sent = data.reduce((a, d) => a + d.n, 0);
+  box.insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${sent} applications sent this month, ${data.filter((d) => d.future).length} days left">${g}</svg>`);
+  const show = (r) => { const d = data[r.dataset.i]; tip.textContent = d.future ? `${d.label}: ahead` : `${d.label}: ${d.n} sent`; tip.style.left = (+r.dataset.i + .5) * bw / W * 100 + '%'; tip.style.top = (d.future ? base - 6 : y(d.n)) + 'px'; tip.style.display = 'block'; };
+  box.querySelectorAll('.hit').forEach((r) => { r.onmouseenter = () => show(r); r.onclick = () => show(r); r.onmouseleave = () => (tip.style.display = 'none'); });
+}
+
+// ---------- list ----------
+function setTab(t) { state.tab = t; state.offset = 0; document.querySelectorAll('.tab').forEach((el) => el.classList.toggle('on', el.dataset.tab === t)); loadList(); }
+async function loadList(append = false) {
+  const rows = await call('list', { tab: state.tab, q: state.q, source: state.source, pay: state.pay, offset: state.offset, limit: 50 });
+  state.rows = append ? state.rows.concat(rows) : rows;
+  $('#more').hidden = rows.length < 50;
+  renderList();
+}
+function renderList() {
+  const el = $('#list');
+  if (!state.rows.length) { el.innerHTML = `<div class="card empty">${state.tab === 'review' ? 'Nothing to review right now. New jobs are screened every 10 minutes.' : 'Nothing here yet.'}</div>`; return; }
+  el.innerHTML = state.rows.map((j) => `
+    <div class="card job" data-id="${j.id}">
+      <div class="score ${j.priority === 'high' ? 'high' : ''}" title="Fit score">${j.fit_score ?? '–'}</div>
+      <div style="min-width:0">
+        <div class="t">${j.starred ? '★ ' : ''}${esc(j.title)}</div>
+        <div class="m"><span>${esc(j.company || 'Company not shown')}</span><span>${pay(j)}</span><span class="src">${esc(SOURCE_LABEL[j.source] || j.source)}</span><span>${ago(j.posted_at || j.created_at)}</span></div>
+        ${j.status === 'rejected' && j.reject_reason ? `<div class="m">${esc(j.reject_reason).slice(0, 160)}</div>` : ''}
+      </div>
+      <div class="right"><span class="st ${j.status}">${STATUS_LABEL[j.status] || j.status}</span>${j.apply_method === 'email' ? '<span class="src">applies by email</span>' : ''}
+        <span class="rowacts">${hasLink(j) ? `<a href="${esc(j.url)}" target="_blank" rel="noopener" class="src" onclick="event.stopPropagation()">Open job ↗</a>` : ''}
+        ${REMOVABLE.includes(j.status) ? `<button class="linkbtn" data-remove="${j.id}">Remove</button>` : ''}</span></div>
+    </div>`).join('');
+  el.querySelectorAll('.job').forEach((c) => c.onclick = () => openJob(c.dataset.id));
+  el.querySelectorAll('[data-remove]').forEach((b) => b.onclick = (e) => { e.stopPropagation(); removeLead(b.dataset.remove); });
+}
+// Removes right away (no questions), with Undo in the toast. From the popup it then opens the next job.
+const REMOVABLE = ['review', 'needs_info', 'ready', 'new'];
+async function removeLead(id, fromPopup = false) {
+  const idx = state.rows.findIndex((r) => String(r.id) === String(id));
+  const prev = (fromPopup && state.current ? state.current.status : idx >= 0 && state.rows[idx].status) || 'review';
+  await call('set_status', { id, status: 'skipped', note: 'Removed by the user' });
+  if (idx >= 0) { state.rows.splice(idx, 1); state.navIdx = idx; renderList(); }
+  toast('Lead removed', async () => {
+    await call('set_status', { id, status: prev === 'ready' ? 'ready' : 'review' });
+    toast('Lead restored'); refresh();
+  });
+  loadStats().catch(() => {});
+  if (!fromPopup) return;
+  const t = idx >= 0 ? idx : state.navIdx;
+  if (t >= state.rows.length && !$('#more').hidden) { state.offset += 50; await loadList(true); }
+  if (state.rows[t]) await openJob(state.rows[t].id); else { closeJob(); toast('Lead removed. That was the last job in this list.'); }
+}
+
+// ---------- job popup ----------
+// Jobs pasted without a link get a 'manual:...' placeholder url: no link buttons, no full-post fetch.
+const hasLink = (j) => /^https?:\/\//i.test(j.url || '');
+const isSnippet = (d) => { d = String(d || '').trim(); return d.length < 400 || /(\.\.\.|…)$/.test(d) || /^From a job alert email/.test(d); };
+// Every link mentioned in the post (application forms, Calendly, Loom...), so a "fill out this form" lead is one click away.
+const postLinksOf = (d) => [...new Set((String(d || '').match(/\b(?:https?:\/\/|www\.)[^\s<>"')\]]+|\b(?:forms\.gle|bit\.ly|tinyurl\.com|calendly\.com|typeform\.com|jotform\.com|tally\.so|airtable\.com)\/[^\s<>"')\]]+/gi) || [])
+  .map((u) => u.replace(/[.,;:]+$/, '')))].slice(0, 12);
+const isForm = (u) => /forms\.gle|docs\.google\.com\/forms|typeform|jotform|tally\.so|airtable\.com|forms\.office|surveymonkey|apply|career|jobs\./i.test(u);
+const linkify = (s) => String(s || '').split(/(\bhttps?:\/\/[^\s<>"')\]]+)/g).map((part, i) => {
+  if (i % 2 === 0) return esc(part);
+  const u = part.replace(/[.,;:]+$/, '');
+  return `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>${esc(part.slice(u.length))}`;
+}).join('');
+
+function renderPost(j, loading) {
+  const d = String(j.description || '').trim();
+  const links = postLinksOf(d);
+  const snip = !loading && j.source !== 'manual' && isSnippet(d);
+  $('#jmPost').innerHTML = `
+    <div class="post-h"><h4>Job post</h4>${loading ? '<span class="post-tag">Fetching the full post...</span>' : snip ? '<span class="post-tag warn">Preview only</span>' : ''}
+      <span class="spacer"></span>${hasLink(j) ? `<a class="src" href="${esc(j.url)}" target="_blank" rel="noopener">Original post ↗</a>` : ''}</div>
+    ${snip ? `<div class="note-warn" style="margin-bottom:14px">${esc(SOURCE_LABEL[j.source] || 'This site')} only gave us a preview of this post. <a href="${esc(j.url)}" target="_blank" rel="noopener">Open the original</a> for the full text.</div>` : ''}
+    ${links.length ? `<div class="post-links"><b>Links in the post${links.some(isForm) ? ' (includes an application form)' : ''}</b>
+      ${links.map((u) => `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}" target="_blank" rel="noopener">${isForm(u) ? '📝 ' : ''}${esc(u)}</a>`).join('')}</div>` : ''}
+    <div class="post">${d ? linkify(d) : '<span class="sub">No description saved for this job.</span>'}</div>`;
+}
+function navTarget(dir) {
+  const f = state.current ? state.rows.findIndex((r) => String(r.id) === String(state.current.id)) : -1;
+  if (f < 0) return dir < 0 ? state.navIdx - 1 : state.navIdx; // current job left the list (approved, removed): its old slot is "next"
+  return f + dir;
+}
+function renderNav() {
+  const f = state.current ? state.rows.findIndex((r) => String(r.id) === String(state.current.id)) : -1;
+  const more = !$('#more').hidden;
+  $('#bPrev').disabled = navTarget(-1) < 0;
+  $('#bNext').disabled = navTarget(1) >= state.rows.length && !more;
+  $('#bRemoveNow').disabled = !state.current || !REMOVABLE.includes(state.current.status);
+  $('#jmPos').textContent = f >= 0 ? `${f + 1} of ${state.rows.length}${more ? '+' : ''}` : '';
+}
+async function go(dir) {
+  const t = navTarget(dir);
+  if (t < 0) return;
+  if (t >= state.rows.length && !$('#more').hidden) { state.offset += 50; await loadList(true); }
+  if (state.rows[t]) await openJob(state.rows[t].id);
+}
+function closeJob() { $('#jm').classList.remove('open'); $('#scrim').classList.remove('open'); state.current = null; }
+function closeDrawer() { $('#drawer').classList.remove('open'); $('#jm').classList.remove('open'); $('#scrim').classList.remove('open'); state.current = null; }
+async function openJob(id, opts = {}) {
+  const j = await call('get', { id });
+  if (!j) return toast('Job not found');
+  const same = state.current && String(state.current.id) === String(j.id);
+  state.current = j;
+  const f = state.rows.findIndex((r) => String(r.id) === String(j.id));
+  if (f >= 0) state.navIdx = f;
+  $('#jmSrc').textContent = (SOURCE_LABEL[j.source] || j.source) + (j.employer_region ? ' · employer: ' + j.employer_region : '');
+  $('#jmTitle').textContent = j.title;
+  $('#jmMeta').innerHTML = `${esc(j.company || 'Company not shown')} · ${pay(j)} · ${ago(j.posted_at || j.created_at)} · <span class="st ${j.status}">${STATUS_LABEL[j.status] || j.status}</span>`;
+  $('#jmStar').textContent = j.starred ? '★' : '☆';
+  renderNav();
+  // Only a snippet stored (search results, alert emails): n8n fetches the full post once and saves it.
+  const want = j.source !== 'manual' && ((j.description || '').length < 1500 || /(\.\.\.|…)$/.test((j.description || '').trim()));
+  renderPost(j, want);
+  if (want) call('fetch_detail', { id: j.id }).then((r) => {
+    if (!state.current || state.current.id !== j.id) return;
+    if (r && r.description && r.description.length > (j.description || '').length) j.description = r.description;
+    renderPost(j, false);
+  }).catch(() => { if (state.current && state.current.id === j.id) renderPost(j, false); });
+  const isEmail = j.apply_method === 'email' && j.apply_email;
+  const canApprove = ['review', 'needs_info'].includes(j.status);
+  const qs = Array.isArray(j.questions) ? j.questions : [];
+  const manual = j.questions_from === 'manual'; // the post wants a Loom / video / its own form: he applies himself
+  const prevAns = String(j.answers || '').split('\n');
+  $('#jmSide').innerHTML = `
+    <div class="card sec"><h4>Job details</h4>
+      <dl class="kv">
+        ${j.fit_score != null ? `<dt>Old AI score</dt><dd><b>${j.fit_score}</b> / 100 · ${esc(j.score_notes || '')}</dd>` : ''}
+        ${j.salary_text ? `<dt>Pay</dt><dd>${esc(j.salary_text)}</dd>` : ''}
+        ${j.reject_reason ? `<dt>Rejected</dt><dd>${esc(j.reject_reason)}</dd>` : ''}
+        <dt>How to apply</dt><dd>${isEmail ? `Email to <b>${esc(j.apply_email)}</b> (sent from your Gmail with your ${esc(j.resume_variant || 'automation')} resume)` : hasLink(j) ? `On the site: <a href="${esc(j.url)}" target="_blank" rel="noopener">open the job</a>` : 'Wherever you found it (no link saved)'}</dd>
+        ${j.required_phrase ? `<dt>Required phrase</dt><dd><b>${esc(j.required_phrase)}</b></dd>` : ''}
+        <dt>Location</dt><dd>${esc(j.location || '')} ${j.employment_type ? '· ' + esc(j.employment_type) : ''}</dd>
+        <dt>Found</dt><dd>${fmtDate(j.created_at)}${j.posted_at ? ' · posted ' + fmtDate(j.posted_at) : ''}</dd>
+      </dl>
+    </div>
+    ${qs.length && manual ? `<div class="card sec"><h4>Needs you: apply yourself</h4>
+      <p class="sub" style="margin-top:0">The post asks for something only you can do:</p>
+      <ol class="qs">${qs.map((q) => `<li>${esc(q)}</li>`).join('')}</ol>
+      <p class="sub">Record it, apply on the site with the letter below, then press "I applied myself".</p></div>` : ''}
+    ${qs.length && !manual ? `<div class="card sec"><h4>Needs you</h4>
+      <p class="sub" style="margin-top:0">The job post asks these. Your answers are saved to your standard answers (Settings) and reused on every later form.</p>
+      ${qs.map((q, i) => `<label class="sub" style="display:block;margin:10px 0 4px;color:inherit"><b>${i + 1}.</b> ${esc(q)}</label>
+        <textarea class="qa" data-q="${esc(q)}" style="min-height:44px">${esc(prevAns[i] || '')}</textarea>`).join('')}
+      <div class="acts"><button class="btn primary" id="bAnswer">Save answers and ${j.letter ? 'rewrite' : 'write'} letter</button></div></div>` : ''}
+    <div class="card sec"><h4>Application letter</h4>
+      ${j.status === 'revamping' ? `<div class="note-warn">${!j.letter_request ? 'Rewriting... reopen in a few seconds.' : j.letter_request.claimed_at ? 'Writing on your PC... reopen in a minute.' : `Waiting for your PC to pick this letter up (it may be asleep). <div class="acts"><button class="btn" id="bApiStuck">Use API credits instead (about $0.02)</button></div>`}</div>` : ''}
+      <input class="field" id="subj" value="${esc(j.letter_subject || '')}" placeholder="Subject (email applications)" style="margin-bottom:8px">
+      <textarea class="letter" id="letter" placeholder="No letter yet. Tap &quot;Write cover letter&quot; (written on your PC with your Claude plan, free), or type your own here.">${esc(j.letter || '')}</textarea>
+      <div id="apiOffer"></div>
+      <div class="acts">
+        ${canApprove && !j.letter ? '<button class="btn primary" id="bWrite">Write cover letter</button>' : ''}
+        ${j.status === 'rejected' ? `<button class="btn primary" id="bWrite" title="Overrules the filter: the job moves to your leads once the letter is saved">${j.letter ? 'Rewrite cover letter anyway' : 'Write cover letter anyway'}</button>` : ''}
+        ${j.status === 'low_pay' ? `<button class="btn primary" id="bWrite" title="Pays $8-11.99/hr. The job moves to your leads once the letter is saved">${j.letter ? 'Rewrite cover letter' : 'Write cover letter'}</button>` : ''}
+        ${canApprove && !manual ? `<button class="btn good" id="bApprove">${isEmail ? 'Approve and queue email' : 'Approve, then apply on the site'}</button>` : ''}
+        <button class="btn" id="bCopy">Copy letter</button>
+        ${hasLink(j) ? `<a class="btn" href="${esc(j.url)}" target="_blank" rel="noopener" id="bOpen">Open job${isEmail ? '' : ' and apply'}</a>` : ''}
+        ${['ready', 'review', 'needs_info'].includes(j.status) ? '<button class="btn" id="bApplied">I applied myself</button>' : ''}
+      </div>
+      <div style="margin-top:12px${j.letter ? '' : ';display:none'}">
+        <textarea id="fb" placeholder="What should change? e.g. &quot;shorter, lead with the Zendesk system, drop the portfolio line&quot;" style="min-height:64px"></textarea>
+        <div class="acts"><button class="btn primary" id="bRevamp">Rewrite with this feedback</button>
+          <label class="chk"><input type="checkbox" id="remember" checked> Apply to all future letters</label></div>
+      </div>
+    </div>
+    <div class="card sec"><h4>Track</h4>
+      <div class="acts" style="margin-top:0">
+        <select class="field" id="newStatus" style="width:auto">
+          ${['applied', 'interview', 'offer', 'won', 'lost', 'ghosted', 'skipped'].map((s) => `<option value="${s}"${s === j.status ? ' selected' : ''}>${STATUS_LABEL[s]}</option>`).join('')}
+        </select>
+        <input class="field" type="datetime-local" id="ivAt" title="Interview time" style="width:auto">
+        <button class="btn" id="bStatus">Update</button>
+      </div>
+      <textarea id="note" placeholder="Note (interviewer, salary discussed, next step...)" style="min-height:56px;margin-top:8px"></textarea>
+      ${j.notes ? `<div class="desc" style="margin-top:8px">${esc(j.notes)}</div>` : ''}
+    </div>
+    <div class="card sec"><h4>History</h4>${(j.events || []).map((e) => `<div class="ev"><span>${fmtDate(e.at)}</span><span>${esc(e.kind)}: ${esc(e.detail || '')}</span></div>`).join('')}</div>`;
+  $('#jm').classList.add('open'); $('#scrim').classList.add('open');
+  if (!same) { $('#jmPost').scrollTop = 0; $('#jmSide').scrollTop = 0; $('.jm-b').scrollTop = 0; }
+  const on = (id, fn) => { const b = document.getElementById(id); if (b) b.onclick = fn; };
+  const busy = async (btn, label, fn) => { const b = document.getElementById(btn); const t = b.textContent; b.disabled = true; b.textContent = label; try { await fn(); } catch (e) { toast(e.message); } b.disabled = false; b.textContent = t; };
+  on('bApprove', () => busy('bApprove', 'Saving...', async () => {
+    const r = await call('approve', { id: j.id, subject: $('#subj').value, letter: $('#letter').value });
+    if (r.error) return toast(r.error);
+    toast(r.status === 'sending' ? 'Approved. It sends during US business hours.'
+      : 'Approved. Copy the letter, open the job, apply there, then tap "I applied myself".');
+    refresh(); openJob(j.id);
+  }));
+  // Letters are written by the worker on my PC (Claude Code, no API credits) when it is online: the API answers
+  // {queued: true} and the job stays "revamping" until the PC saves the letter. Wait for that here.
+  // PC off: nothing is spent automatically (the user 2026-10-14). Offer the paid API path as an explicit button instead.
+  const letterDone = async (r, okMsg, action, p) => {
+    const offerApi = (msg, p2) => {
+      $('#apiOffer').innerHTML = `<div class="note-warn">${msg}
+        <div class="acts"><button class="btn" id="bApi">Use API credits (about $0.02)</button></div></div>`;
+      on('bApi', () => busy('bApi', 'Writing with the API...', async () => {
+        $('#apiOffer').innerHTML = '';
+        await letterDone(await call(action, { ...p2, use_api: true }), okMsg);
+      }));
+    };
+    if (r && r.pc_off) return offerApi("Your PC is off, so the letter can't be written for free. Turn the PC on and try again, or pay for this one letter with API credits.", p);
+    if (r && r.error) return toast(r.error);
+    if (r && r.queued) {
+      const t0 = Date.now();
+      let x = null;
+      while (Date.now() - t0 < 300000) {
+        await new Promise((res) => setTimeout(res, 4000));
+        x = await call('get', { id: j.id });
+        if (x && x.status !== 'revamping') break;
+        // Laptop closed in the last 10 min: the request sits unclaimed. Offer the API (feedback is already saved, so
+        // the retry must not save it as a style note a second time).
+        if (Date.now() - t0 > 45000 && x && x.letter_request && !x.letter_request.claimed_at) {
+          return offerApi("Your PC hasn't picked this letter up (it may be asleep). It will write it for free when it wakes up, or you can pay for this one with API credits now.", { ...p, remember: false });
+        }
+      }
+      if (!x || x.status === 'revamping') { toast('Still writing on your PC. Reopen the job in a minute.'); refresh(); return; }
+      const failed = (x.events || []).find((e) => e.kind === 'error' && /PC letter/.test(e.detail || '') && Date.now() - new Date(e.at) < 330000);
+      if (failed) { toast('Letter failed: ' + failed.detail.slice(0, 120)); openJob(j.id); refresh(); return; }
+    }
+    toast(okMsg); openJob(j.id); refresh();
+  };
+  on('bWrite', () => busy('bWrite', 'Writing (about 30s)...', async () => {
+    const p = { id: j.id };
+    await letterDone(await call('write_letter', p), 'Letter written', 'write_letter', p);
+  }));
+  // Reopened a job whose letter still waits on a sleeping PC: same paid option, his choice. Saved feedback/answers are reused.
+  on('bApiStuck', () => busy('bApiStuck', 'Writing with the API...', async () => {
+    const lr = j.letter_request || {};
+    await letterDone(await call(lr.kind || 'write_letter', { id: j.id, feedback: lr.feedback || '', answers: j.answers || '', use_api: true }), 'Letter written');
+  }));
+  on('bCopy', async () => { await navigator.clipboard.writeText($('#letter').value); toast('Letter copied'); });
+  on('bApplied', () => {
+    if (!confirm('Did you already submit this application on the job site? This only records it in the tracker, it does not send anything.')) return;
+    busy('bApplied', 'Saving...', async () => { await call('mark_applied', { id: j.id }); toast('Marked as applied'); refresh(); openJob(j.id); });
+  });
+  on('bRevamp', () => busy('bRevamp', 'Rewriting (about 30s)...', async () => {
+    const fb = $('#fb').value.trim(); if (!fb) return toast('Write what should change first');
+    const p = { id: j.id, feedback: fb, remember: $('#remember').checked };
+    await letterDone(await call('revamp', p), 'Rewritten', 'revamp', p);
+  }));
+  on('bAnswer', () => {
+    const pairs = [...document.querySelectorAll('#jmSide .qa')].map((t) => ({ q: t.dataset.q, a: t.value.trim() }));
+    busy('bAnswer', 'Rewriting (about 30s)...', async () => {
+      const p = { id: j.id, answers: pairs.map((x) => x.a).join('\n'), pairs };
+      await letterDone(await call('answer', p), 'Letter rewritten with your answers', 'answer', p);
+    });
+  });
+  // "Add and write cover letter" from the Paste a job drawer: same button, same PC / API-credits path.
+  if (opts.write && document.getElementById('bWrite')) document.getElementById('bWrite').click();
+  on('bStatus', () => busy('bStatus', 'Saving...', async () => {
+    const iv = $('#ivAt').value;
+    await call('set_status', { id: j.id, status: $('#newStatus').value, note: $('#note').value, interview_at: iv ? new Date(iv).toISOString() : '' });
+    toast('Updated'); refresh(); openJob(j.id);
+  }));
+}
+$('#dClose').onclick = closeDrawer; $('#jmClose').onclick = closeDrawer; $('#scrim').onclick = closeDrawer;
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') return closeDrawer();
+  if (!$('#jm').classList.contains('open') || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowLeft') go(-1); else if (e.key === 'ArrowRight') go(1);
+});
+const navBusy = (fn) => async () => {
+  const bs = ['#bPrev', '#bNext', '#bRemoveNow'].map((s) => $(s));
+  if (bs.some((b) => b.dataset.busy)) return;
+  bs.forEach((b) => { b.dataset.busy = 1; b.disabled = true; });
+  try { await fn(); } catch (e) { toast(e.message); }
+  bs.forEach((b) => delete b.dataset.busy); renderNav();
+};
+$('#bPrev').onclick = navBusy(() => go(-1));
+$('#bNext').onclick = navBusy(() => go(1));
+$('#bRemoveNow').onclick = navBusy(() => state.current && removeLead(state.current.id, true));
+// iPhone share sheet (Messages, Notes, Mail...) with the job's own link; desktop without it copies the link.
+$('#jmShare').onclick = async () => {
+  const j = state.current; if (!j) return;
+  const data = { title: j.title, text: `${j.title}${j.company ? ' at ' + j.company : ''}`, url: hasLink(j) ? j.url : location.origin };
+  if (navigator.share) { try { await navigator.share(data); } catch {} return; }
+  await navigator.clipboard.writeText(`${data.text}\n${j.url}`); toast('Job link copied');
+};
+$('#jmStar').onclick = async () => { if (!state.current) return; await call('star', { id: state.current.id }); openJob(state.current.id); loadList(); };
+
+// ---------- settings / add job ----------
+function sheet(title, html, onSave) {
+  state.current = null; $('#jm').classList.remove('open');
+  $('#dSrc').textContent = ''; $('#dTitle').textContent = title; $('#dMeta').textContent = ''; $('#dStar').textContent = '';
+  $('#dBody').innerHTML = html;
+  $('#drawer').classList.add('open'); $('#scrim').classList.add('open');
+  onSave();
+}
+$('#btnSettings').onclick = () => {
+  const s = state.stats.settings;
+  const done = s.approvals_done >= Number(s.approvals_required);
+  sheet('Settings', `
+    <div class="card sec"><h4>Style notes for every letter</h4>
+      <p class="sub" style="margin-top:0">Built from your "Apply to all future letters" feedback. Edit freely. Claude follows these over its default rules.</p>
+      <textarea id="sn" style="min-height:200px">${esc(s.style_notes)}</textarea>
+      <div class="acts"><button class="btn primary" id="bSn">Save style notes</button></div></div>
+    <div class="card sec"><h4>Auto-send email applications</h4>
+      <p class="sub" style="margin-top:0">${done ? 'Review period finished.' : `Locked until you approve ${s.approvals_required} letters (${s.approvals_done} so far).`} Only jobs that ask to apply by email can auto-send, max <b>${esc(s.daily_email_cap)}</b> a day, Mon-Fri during US business hours. Everything else always waits for you.</p>
+      <label class="chk"><input type="checkbox" id="as" ${s.auto_send === 'true' ? 'checked' : ''} ${done ? '' : 'disabled'}> Send approved-quality email applications without asking</label>
+      <div class="acts"><button class="btn" id="bAs" ${done ? '' : 'disabled'}>Save</button></div></div>`, () => {
+    $('#bSn').onclick = async () => { await call('set_setting', { key: 'style_notes', value: $('#sn').value }); toast('Saved'); loadStats(); };
+    const b = document.getElementById('bAs'); if (b) b.onclick = async () => { await call('set_setting', { key: 'auto_send', value: $('#as').checked ? 'true' : 'false' }); toast('Saved'); loadStats(); };
+  });
+};
+$('#btnAdd').onclick = () => sheet('Paste a job', `
+  <div class="card sec"><h4>Found a job yourself?</h4>
+    <p class="sub" style="margin-top:0">Paste the whole post and get a cover letter written the usual way (your PC with your Claude plan, free; API credits only if you press that button). The job is saved in your leads too.</p>
+    <textarea id="aDesc" placeholder="Paste the full job post here" style="min-height:260px;margin-bottom:8px"></textarea>
+    <p class="sub">Optional (the first line of the post becomes the title if you leave it empty):</p>
+    <input class="field" id="aTitle" placeholder="Job title" style="margin-bottom:8px">
+    <input class="field" id="aCo" placeholder="Company" style="margin-bottom:8px">
+    <input class="field" id="aUrl" placeholder="Job link" style="margin-bottom:8px">
+    <input class="field" id="aPay" placeholder="Pay as posted">
+    <div class="acts"><button class="btn primary" id="bAddWrite">Add and write cover letter</button>
+      <button class="btn" id="bAddJob">Just add to leads</button></div></div>`, () => {
+  const add = async (write) => {
+    const p = { url: $('#aUrl').value.trim(), title: $('#aTitle').value.trim(), company: $('#aCo').value.trim(), salary_text: $('#aPay').value.trim(), description: $('#aDesc').value.trim() };
+    if (!p.description) return toast('Paste the job post first');
+    if (p.url && !/^https?:\/\//i.test(p.url)) p.url = 'https://' + p.url;
+    const r = await call('add_job', p);
+    if (r && r.error) return toast(r.error);
+    closeDrawer(); refresh();
+    if (write) openJob(r.id, { write: true }); else toast('Added to your leads');
+  };
+  $('#bAddWrite').onclick = () => add(true);
+  $('#bAddJob').onclick = () => add(false);
+});
+
+// ---------- boot ----------
+let qT;
+$('#q').oninput = (e) => { clearTimeout(qT); qT = setTimeout(() => { state.q = e.target.value; state.offset = 0; loadList(); }, 300); };
+$('#source').onchange = (e) => { state.source = e.target.value; state.offset = 0; loadList(); };
+$('#pay').onchange = (e) => { state.pay = e.target.value; state.offset = 0; loadList(); };
+$('#more').onclick = () => { state.offset += 50; loadList(true); };
+async function refresh() { try { await loadStats(); await loadList(); } catch (e) { toast(e.message); } }
+window.addEventListener('resize', () => state.stats && drawChart(state.stats.applied_by_day || []));
+refresh();
+setInterval(() => { if (!state.current && document.visibilityState === 'visible') loadStats(); }, 120000);
+
+// ---------- demo data (opened as a file, or ?demo) ----------
+function demo(action, p) {
+  const now = Date.now();
+  const mk = (i, o) => ({ id: i, source: ['onlinejobs', 'linkedin', 'himalayas'][i % 3], url: 'https://example.com/' + i, title: o.t, company: o.c,
+    salary_text: o.p, rate_usd_hr: o.r, fit_score: o.f, priority: o.f >= 75 ? 'high' : o.f >= 55 ? 'normal' : 'low', status: o.s,
+    apply_method: o.e ? 'email' : 'site', apply_email: o.e || null, created_at: new Date(now - i * 3.6e6).toISOString(), posted_at: null,
+    category: 'automation', score_notes: 'Strong n8n match, US client, remote from PH.', reject_reason: o.s === 'rejected' ? 'Pay below floor ($6/hr)' : null });
+  const rows = [
+    mk(1, { t: 'Business Automation Analyst', c: 'US-based MSP', p: 'Competitive', f: 88, s: 'review' }),
+    mk(2, { t: 'n8n Automation Specialist (Full-time, EST)', c: 'Northbeam Ops', p: '$2,200/month', r: 13.75, f: 84, s: 'review', e: 'jobs@northbeam.io' }),
+    mk(3, { t: 'Operations & Automation Manager', c: 'Amazon agency', p: '$1,800 to $2,500/month', r: 15.6, f: 86, s: 'needs_info' }),
+    mk(4, { t: 'Technical Support Engineer (SaaS)', c: 'Helpwise', p: '$15-18/hr', r: 18, f: 77, s: 'ready' }),
+    mk(5, { t: 'AI Agent Developer', c: 'Talent Bridge', p: '', f: 72, s: 'applied' }),
+    mk(6, { t: 'GoHighLevel Automation VA', c: null, p: '$5-6/hr', r: 6, f: 30, s: 'rejected' }),
+    mk(7, { t: 'Zapier Support Specialist', c: 'Small agency', p: '$10/hr', r: 10, f: 50, s: 'low_pay' }),
+  ];
+  if (action === 'stats') return { found: 590, found_today: 590, screened: 240, rejected: 198, review: 2, low_pay: 1, needs_info: 1, ready: 1, leads: 4, high: 4,
+    applied: 9, applied_today: 3, applied_week: 9, interviews: 1, offers: 0, won: 0, queue_new: 350, ai_cost_today: 0.84, ai_cost_30d: 0.84,
+    by_source: { onlinejobs: 299, linkedin: 106, himalayas: 101, wwr: 33, jobicy: 24, remoteok: 23, remotive: 4 },
+    applied_by_day: [{ d: new Date(now - 2 * 864e5).toLocaleDateString('en-CA'), n: 2 }, { d: new Date(now - 864e5).toLocaleDateString('en-CA'), n: 4 }, { d: new Date(now).toLocaleDateString('en-CA'), n: 3 }],
+    settings: { approvals_done: 3, approvals_required: '20', auto_send: 'false', style_notes: '- shorter openers', daily_email_cap: '25' }, unmatched_replies: [] };
+  if (action === 'list') {
+    const t = p.tab;
+    const f = (j) => t === 'all' || (t === 'review' && j.status === 'review') || (t === 'high' && j.priority === 'high' && j.status !== 'applied') || j.status === t
+      || (t === 'applied' && j.status === 'applied') || (t === 'rejected' && j.status === 'rejected');
+    const fp = (j) => !p.pay || (p.pay === 'posted') === (j.rate_usd_hr != null);
+    return rows.filter((j) => f(j) && fp(j));
+  }
+  if (action === 'fetch_detail') return new Promise((ok) => setTimeout(() => ok({ description: 'Full job post fetched from the site.\n\nAbout the role\nWe need someone to build and run n8n automations for our support team. Apply here: https://forms.gle/abc123\n\nWhat you will do\n- Build workflows\n- Support customers\n\nRequirements\n- 2+ years n8n\n- EST hours', fetched: true }), 600));
+  if (action === 'get') {
+    const j = rows.find((r) => r.id == p.id);
+    return { ...j, location: 'Remote', employment_type: 'full-time', employer_region: 'US', resume_variant: 'automation',
+      questions: j.status === 'needs_info' ? ['Monthly rate in USD', 'Hours available in US Pacific time'] : null,
+      letter_subject: j.title + ' application - Your Name',
+      letter: 'Hi there,\n\nI run 50+ production n8n workflows for my own content pipeline...\n\nCheers,\nYour Name John Name',
+      description: 'Full job post text here.', events: [{ at: j.created_at, kind: 'found', detail: j.source }] };
+  }
+  return { ok: true, status: 'ready' };
+}
+</script>
+</body>
+</html>
